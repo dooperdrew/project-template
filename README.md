@@ -135,7 +135,8 @@ Tasks are categorized by complexity to optimize both execution speed and cogniti
 The repository includes pre-configured automation scripts in `scripts/`:
 - **Portable Packaging (`scripts/package-release.ps1`):** Builds release binaries, stages documentation and assets, creates `.zip` archives, and computes SHA-256 checksums.
 - **Package Manager Manifests (`scripts/generate-manifests.ps1`):** Automatically produces Windows Package Manager (**WinGet**) and **Scoop** manifests.
-- **Zero-Elevation Installers (`scripts/install.ps1`, `uninstall.ps1`, `setup.cmd`):** Clean portable installation into `%LOCALAPPDATA%\Programs\<ProjectName>`.
+- **Zero-Elevation Installers (`scripts/setup-wizard.ps1`, `scripts/install.ps1`, `scripts/uninstall.ps1`, `setup.cmd`):** Clean graphical and console installers into `%LOCALAPPDATA%\Programs\<ProjectName>`.
+- **Inno Setup Script (`scripts/installer.iss`):** Ready-to-compile native Windows installer script.
 - **GitHub Actions CI/CD (`.github/workflows/`):** Automated PR/push verification in `ci.yml` and tag-triggered GitHub Releases in `release.yml`.
 
 ---
@@ -177,7 +178,9 @@ The repository includes pre-configured automation scripts in `scripts/`:
 ├── scripts/
 │   ├── generate-manifests.ps1      # WinGet & Scoop manifest generator
 │   ├── install.ps1                 # Zero-elevation user-level installer
+│   ├── installer.iss               # Inno Setup native Windows installer template
 │   ├── package-release.ps1         # Automated release bundler & SHA-256 calculator
+│   ├── setup-wizard.ps1            # Graphical & console guided Windows setup wizard
 │   └── uninstall.ps1               # Clean application and shortcut uninstaller
 ├── setup.cmd                       # Double-clickable Windows setup launcher
 ├── AGENTS.md                       # Binding operational rules and verification gate

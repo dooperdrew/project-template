@@ -47,8 +47,12 @@ Fallback order: `inherit` → `pro` → `flash` → `flash_lite`. Every fallback
 **During:** respect the hard rules (§7). Unverified assumptions are marked 🔬 and probed, not guessed. Decouple headless tests from physical QA (keep manual QA as Pending).
 **Draft PR Review (for Copilot / Worker tasks):** Lead pulls branch locally, runs the full verification gate, inspects diff for ownership and safety invariants, refines if needed, merges to `main`, and closes the corresponding issue.
 **Gate (must pass before finishing):**
-```
+```bash
 {{VERIFICATION_GATE_COMMANDS}}
+# Examples:
+# Rust: cargo fmt -- --check; cargo clippy -D warnings; cargo test --workspace; cargo build --release
+# TypeScript / Web: npm run lint; npm test; npm run build
+# Python: ruff check .; ruff format --check; pytest; uv build
 ```
 **After (lead only):** tick the roadmap box (date + commit), add a CHANGELOG entry, update docs/ADRs if the design changed,
 add any lesson to `docs/lessons-learned.md`, commit (`M<x>.<y>: <summary>`), push, and update the issue.
@@ -56,9 +60,11 @@ add any lesson to `docs/lessons-learned.md`, commit (`M<x>.<y>: <summary>`), pus
 ## 7. Hard rules
 {{PROJECT_HARD_RULES — performance budgets, safety constraints, forbidden techniques, security rules}}
 - **GitHub Governance (Milestones, Issues & Releases):** Every roadmap milestone (`M0`..`Mn`) MUST have a corresponding GitHub Milestone and tracked GitHub Issues. Completed tasks close their issue with a commit/release reference; pending hardware/manual QA stays open in its milestone. Every release MUST attach a pre-built downloadable bundle (`.zip` / installer) on GitHub Releases via `gh release create` (or `.github/workflows/release.yml`) even while physical hardware QA remains `Pending`.
+- **Single-Binary & Setup Ergonomics:** Release bundles must NEVER contain multiple confusing executables. Distribute a single standalone installer (`<AppName>-Setup.exe`) and a clean portable archive containing only the primary executable, assets, and uninstaller. Launching the main executable directly must always open settings/main UI without blocking or erroring.
+- **Documentation Parity Rule:** Whenever packaging, installation, or distribution capabilities are added or updated, `README.md` (`## 📥 Installation & Distribution Options`) and `docs/user-guide.md` MUST be updated in the same commit to document all distribution channels (WinGet, Scoop, Setup Wizard, Portable ZIP) and uninstallation steps.
 - **Claims follow evidence:** Never claim a test, benchmark, or QA item passed without having run it. Hardware/manual QA stays `Pending` until the user confirms.
 - **Keep claims in docs factual:** Avoid marketing language ("pioneering", "zero bugs") in technical specs while QA is pending.
-- **Environment resiliency:** Never assume standard toolchains are in `$PATH`. Prepend `$env:USERPROFILE\.cargo\bin` (or relevant toolchain) in PowerShell commands to guard against PATH omissions.
+- **Environment resiliency:** Never assume standard toolchains are in `$PATH`. Prepend `$env:USERPROFILE\.cargo\bin`, `$env:APPDATA\npm`, or relevant toolchain paths in PowerShell commands to guard against PATH omissions.
 - **Test concurrency:** Tests touching global OS resources (pipes, sockets, registry, hooks) must use unique names and timeout protection to prevent test hangs.
 - **Windows / PowerShell hygiene:** When writing files from PowerShell, force UTF-8 without BOM (`[System.IO.File]::WriteAllText(..., [System.Text.UTF8Encoding]::new($false))` or `Set-Content -Encoding utf8`) and set `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8` before capturing external CLI stdout (`gh`, `git`). Prefer dedicated file-writing tools over shell redirection. Use `;` rather than `&&` on Windows PowerShell 5. Avoid unconstrained recursive searches over dependency caches (`node_modules`, `target`, `.venv`).
 - User-facing strings go through i18n files. Don't hardcode UI text.
@@ -81,3 +87,9 @@ propose a probe, and update the docs only after the user agrees.
 
 ## 10. Build & run
 {{BUILD_RUN_COMMANDS}}
+```bash
+# Examples:
+# Native Desktop (Rust): cargo run --bin {{PROJECT_NAME}}
+# Fullstack Web (Node/Next.js): npm run dev
+# CLI Utility: cargo run --bin {{PROJECT_NAME}}-cli -- --help
+```
